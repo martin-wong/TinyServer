@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+
+  <!-- 必须在TinyServer的同级目录下创建一个名为webapps文件夹 你所写的servlet都必须放在这个文件夹下才能被TinyServer调用-->
+  
+	<handler>
+		<handler-class>servlet.DownloadServlet</handler-class>
+		<url-patten>/download</url-patten> <!-- 如果是本机 访问localhost:8080/webapps/download就会访问到这个类  -->
+	</handler> 
+
+        <handler>
+		<handler-class>WelcomeServlet</handler-class>
+		<url-patten>/welcome</url-patten> 
+	</handler> 
+
+	<handler>
+		<handler-class>servlet.MatrixServlet</handler-class>
+		<url-patten>/matrix</url-patten> 
+	</handler> 
+
+
+</server>
