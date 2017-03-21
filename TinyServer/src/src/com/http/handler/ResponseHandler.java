@@ -59,7 +59,7 @@ public class ResponseHandler {
 		selector = key.selector();
 		channel = (SocketChannel)key.channel();
 		htmlFile = response.getHtmlFile();//要输出的html文件所在的路径
-		bufferList = ((ServletOutputStream)response.getOutputStream()).getBuffer();
+		bufferList = ((ServletOutputStream)response.getOutputStream()).getBufferList();
 		
 		//得到响应正文内容
 		String html = setHtml(context);
@@ -79,13 +79,16 @@ public class ResponseHandler {
 		//构造响应内容 使用了outputStream就不能再指定发送一个html文件
 		int size = bufferList.size();
 		if(size > 0){
-			sb.append("Content-Length: " + size + "\r\n");
+			int length = 0;
+			for (int i = 0; i < size; i++) {
+				ByteBuffer b = (ByteBuffer) bufferList.get(i);
+				length += b.position();
+			}
+			sb.append("Content-Length: " + length + "\r\n");
 			//把上面的内容写到缓存区buffer
 			buffer.put(sb.toString().getBytes());
 			buffer.put("\r\n".getBytes()); //响应头和响应体之间有一个空行
-			for(int i = 0 ; i < size ; i++){
-			   buffer.put((byte) bufferList.get(i));
-			}
+			bufferList.add(buffer);
 		}else{
 			if(html != null){
 				if(reader != null) {
@@ -94,6 +97,7 @@ public class ResponseHandler {
 				sb.append("\r\n");
 				sb.append(html);
 				buffer.put(sb.toString().getBytes());
+				bufferList.add(buffer);
 			}
 		}
 		
@@ -101,7 +105,7 @@ public class ResponseHandler {
 		try {
 			logger.info("生成响应\r\n" + sb.toString());
 			//注册写事件
-			channel.register(selector, SelectionKey.OP_WRITE,this.buffer);
+			channel.register(selector, SelectionKey.OP_WRITE,this.bufferList);
 			//恢复对读的感兴趣
 			key.interestOps(key.interestOps() | SelectionKey.OP_READ);
 			

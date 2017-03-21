@@ -10,9 +10,12 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.dom4j.Element;
+
 import com.http.handler.HttpHandler;
 import com.http.utils.XMLUtil;
 
@@ -111,14 +114,30 @@ public class Server implements Runnable {
 						key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE));
 						logger.info("有流写出!");
 						SocketChannel socketChannel = (SocketChannel) key.channel();
-						ByteBuffer buffer =  (ByteBuffer) key.attachment();
+						List bufferList =  (List) key.attachment();
 						try{
 							//从写模式，切换到读模式，让channel读出去（写事件）
-							buffer.flip();
-							while(buffer.hasRemaining())
-								socketChannel.write(buffer);
+							Object[] buffers =  bufferList.toArray();
+							int len = buffers.length;
+							if(len == 1){
+								ByteBuffer b = (ByteBuffer) buffers[0] ;
+								b.flip();
+								while(b.hasRemaining())
+								  socketChannel.write(b);
+							}else{
+								ByteBuffer b = (ByteBuffer) buffers[len-1] ;
+								b.flip();
+								while(b.hasRemaining())
+								  socketChannel.write(b);
+								for (int i = 0; i < len-1; i++) {
+									ByteBuffer temp = (ByteBuffer) buffers[i] ;
+									temp.flip();
+									while(temp.hasRemaining())
+									  socketChannel.write(temp);
+								}
+							}
 						}catch(Exception e){
-							
+							e.printStackTrace();
 						}finally{
 					       socketChannel.close();
 						}

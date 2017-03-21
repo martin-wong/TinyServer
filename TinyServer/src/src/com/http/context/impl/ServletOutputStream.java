@@ -8,24 +8,24 @@ import java.util.List;
 
 public class ServletOutputStream extends OutputStream{
 
-	private List buffer = new ArrayList<Byte>();
+	private List bufferList = new ArrayList<ByteBuffer>();
 	
-	public List getBuffer() {
-		return buffer;
+	public List getBufferList() {
+		return bufferList;
 	}
 
 	@Override
-	@Deprecated
 	public void write(int b) throws IOException {
-		// TODO Auto-generated method stub
-		
+		byte[] buffer = new byte[1];
+		buffer[0] = (byte)b ;
+		write(buffer,0,1);
 	}
 	
 	public void write(byte[] b ,int off , int len ) throws IOException {
-		int count = len - off ;
-		for (int i = 0 ; i < count; i++) {
-			buffer.add(b[i+off]);
-		}
+		 
+		ByteBuffer buffer = ByteBuffer.allocate(len);
+		buffer.put(b, off, len);
+		bufferList.add(buffer);
 		
 	}
 
