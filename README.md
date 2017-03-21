@@ -19,4 +19,4 @@ http://localhost:8080/webapps/123456
 4.在web.xml中配置您的servlet的映射路径</br>
 5.遇到问题，请参考给出的几个例子中的代码</br>
 ## 预览
-![preview](preview.jpg)
+![preview](preview.png)
