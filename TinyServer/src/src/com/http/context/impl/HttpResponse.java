@@ -3,6 +3,7 @@ package com.http.context.impl;
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.channels.SelectionKey;
+
 import com.http.context.Response;
 
 public class HttpResponse implements Response {
@@ -16,11 +17,22 @@ public class HttpResponse implements Response {
 	private String statuCodeStr = "OK";
 	private String htmlFile = "";
 	private OutputStream outputStream = new ServletOutputStream();
+	private boolean hasDispatchered = false; //默认是没有进行转发
+	private boolean flag = false;
 
 	public HttpResponse(SelectionKey key) {
 		this.key = key;
 	}
 	
+	@Override
+	public boolean getHasDispatchered(){
+		return hasDispatchered;
+	}
+	
+	@Override
+	public boolean getFlag() {
+		return flag;
+	}	
 	
 	@Override
 	public OutputStream getOutputStream() {
@@ -167,5 +179,6 @@ public class HttpResponse implements Response {
 		} else if (!statuCodeStr.equals(other.statuCodeStr))
 			return false;
 		return true;
-	}	
+	}
+
 }

@@ -2,12 +2,19 @@ package com.http.context;
 
 import java.util.Map;
 import java.util.Set;
+
+import com.http.context.impl.RequestDispatcher;
  
 public interface Request {
 	
 	public static final String POST = "POST";
 	
 	public static final String GET = "GET";
+	
+	public Context getContext() ;
+	
+	public RequestDispatcher getRequestDispatcher(String path);
+	
 	/**
 	 * 得到参数
 	 */

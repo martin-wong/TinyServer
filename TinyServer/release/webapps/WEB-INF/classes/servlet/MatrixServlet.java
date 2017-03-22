@@ -15,7 +15,7 @@ public class MatrixServlet extends HttpServlet{
 		response.setStatuCode(200);
 		response.setStatuCodeStr("OK");
 
- 
+                String message = (String)request.getAttribute("message");
 	       double[][] array = {
 				              {1.,2.},
 				              {3.,4.},
@@ -23,7 +23,12 @@ public class MatrixServlet extends HttpServlet{
 	        Matrix A = new Matrix(array); 
 	        Double a = A.get(0, 1);
                 try{
-		     response.getOutputStream().write(String.valueOf(a).getBytes(),0,3);
+                     byte[] b1 =  String.valueOf(a).getBytes();
+		     response.getOutputStream().write(b1,0,b1.length);
+                     if(message != null){
+                        byte[] b2 =  message.getBytes();
+                        response.getOutputStream().write(b2,0,b2.length);
+                     }
                    }catch(IOException e){
 
                    }

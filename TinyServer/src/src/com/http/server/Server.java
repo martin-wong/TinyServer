@@ -12,6 +12,8 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 import org.dom4j.Element;
@@ -22,8 +24,14 @@ import com.http.utils.XMLUtil;
  
 public class Server implements Runnable {
 
-	//声明一个10240大小的缓冲区 用来存放http请求内容
-    private ByteBuffer buffer = ByteBuffer.allocate(10240);  
+	//声明一个10240字节大小的缓冲区 用来存放http请求内容  
+    private ByteBuffer buffer = ByteBuffer.allocate(10240); 
+    
+    //线程池
+    ExecutorService threadPool ;  
+    
+    //默认监听8080端口
+    private String PORT = "8080";
     
 	private boolean interrupted = false;
 	
@@ -36,29 +44,30 @@ public class Server implements Runnable {
 	@Override
 	public void run() {
 		try {
-			//打开一个选择器
+	
 			Selector selector = Selector.open();
-			//打开ServerSocketChannel通道
 			ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
-			//得到ServerSocket对象
 			ServerSocket serverSocket = serverSocketChannel.socket();
+			
 			//ServerSocketChannel通道监听server.xml中设置的端口 默认端口8080
 			serverSocket.setReuseAddress(true);  
-			String port = "8080";
-			try {
-				 Element e = XMLUtil.getRootElement("server.xml").element("port");
-				 if(e != null)
-					port = e.getText(); 
-				serverSocket.bind(new InetSocketAddress(Integer.parseInt(port)));
-				System.out.println("listening on port "+port);
-			} catch (Exception e) {
-				logger.error("绑定端口失败,请检查server.xml中port属性是否被正确设置");
-				return;
-			}
-			logger.info("成功绑定端口" + port);
+		    Element ele = XMLUtil.getRootElement("server.xml").element("port");
+		    if(ele != null)
+			   PORT = ele.getText(); 
+		    serverSocket.bind(new InetSocketAddress(Integer.parseInt(PORT)));
+			
+			logger.info("成功绑定端口" + PORT);
+			
+			//创建线程池
+			String maxThreads = null;
+			Element e1 = XMLUtil.getRootElement("server.xml").element("maxThreads");
+			if(e1 != null)
+				maxThreads = e1.getText(); 
+			threadPool = Executors.newFixedThreadPool(Integer.parseInt(maxThreads));
+			System.out.println("最大线程数"+maxThreads);
 			//将通道设置为非阻塞模式
 			serverSocketChannel.configureBlocking(false);
-			//将serverSocketChannel注册给选择器,并绑定ACCEPT事件
+			//serverSocketChannel注册ACCEPT事件
 			serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
 
 			logger.info("服务器启动成功");
@@ -75,22 +84,20 @@ public class Server implements Runnable {
 				while(iterator.hasNext()) {
 					SelectionKey key = iterator.next();
 					if(key.isAcceptable()) {
-						//该key有ACCEPT事件 ，说明有外界连接连入
-						//拿到发生了accept事件的ServerSocketChannel
+						//ACCEPT事件 ，说明有外界连接连入
 						ServerSocketChannel server = (ServerSocketChannel) key.channel();
 						//得到接收到的SocketChannel
 						SocketChannel socketChannel = server.accept();
 						if(socketChannel != null) {
 							logger.info("收到了来自" + ((InetSocketAddress)socketChannel.getRemoteAddress()).getHostString()
 									+ "的请求");
-							//将socketChannel设置为非阻塞模式
 							socketChannel.configureBlocking(false);
 							//将socketChannel注册读事件到选择器
 							socketChannel.register(selector, SelectionKey.OP_READ);
 						}
 					} 
 					if (key.isReadable()) {
-						//该key有Read事件 意味着客户端开始发送数据，这里的SocketChannel是上面注册了读事件的SocketChannel
+						//该key有Read事件 意味着客户端发送的数据已经开始接收，这里的SocketChannel是上面注册了读事件的SocketChannel
 						key.interestOps(key.interestOps() & (~SelectionKey.OP_READ));
 						SocketChannel socketChannel = (SocketChannel) key.channel();
 						String requestHeader = "";
@@ -105,42 +112,31 @@ public class Server implements Runnable {
 						if(requestHeader.length() > 0) {
 							logger.info("该请求的头格式为\r\n" + requestHeader);
 							logger.info("启动了子线程..");
-							new Thread(new HttpHandler(requestHeader, key)).start();
+							threadPool.execute(new HttpHandler(requestHeader, key));
 						}
 						
 					} 
 					if (key.isWritable()) {
-						//该key有Write事件
+						//已经准备好可以向客户端写数据
 						key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE));
-						logger.info("有流写出!");
 						SocketChannel socketChannel = (SocketChannel) key.channel();
-						List bufferList =  (List) key.attachment();
-						try{
-							//从写模式，切换到读模式，让channel读出去（写事件）
-							Object[] buffers =  bufferList.toArray();
-							int len = buffers.length;
-							if(len == 1){
-								ByteBuffer b = (ByteBuffer) buffers[0] ;
-								b.flip();
-								while(b.hasRemaining())
-								  socketChannel.write(b);
-							}else{
-								ByteBuffer b = (ByteBuffer) buffers[len-1] ;
-								b.flip();
-								while(b.hasRemaining())
-								  socketChannel.write(b);
-								for (int i = 0; i < len-1; i++) {
-									ByteBuffer temp = (ByteBuffer) buffers[i] ;
-									temp.flip();
-									while(temp.hasRemaining())
-									  socketChannel.write(temp);
+						
+						threadPool.execute(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									writeToClient(key, socketChannel);
+								} catch (IOException e) {
+									e.printStackTrace();
+								}finally{
+									 try {
+										socketChannel.close();
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
 								}
 							}
-						}catch(Exception e){
-							e.printStackTrace();
-						}finally{
-					       socketChannel.close();
-						}
+						});
 					}
 					//这行不能少
 					iterator.remove();
@@ -151,6 +147,30 @@ public class Server implements Runnable {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void writeToClient(SelectionKey key, SocketChannel socketChannel) throws IOException {
+		List bufferList =  (List) key.attachment();
+		//从写模式，切换到读模式，让channel读出去（写事件）
+		Object[] buffers =  bufferList.toArray();
+		int len = buffers.length;
+		if(len == 1){
+			ByteBuffer b = (ByteBuffer) buffers[0] ;
+			b.flip();
+			while(b.hasRemaining())
+			  socketChannel.write(b);
+		}else{
+			ByteBuffer b = (ByteBuffer) buffers[len-1] ;
+			b.flip();
+			while(b.hasRemaining())
+			  socketChannel.write(b);
+			for (int i = 0; i < len-1; i++) {
+				ByteBuffer temp = (ByteBuffer) buffers[i] ;
+				temp.flip();
+				while(temp.hasRemaining())
+				  socketChannel.write(temp);
+			}
 		}
 	}
 	
@@ -174,7 +194,6 @@ public class Server implements Runnable {
         //将流转回字节数组
         bytes = baos.toByteArray();
         String httpHeader = new String(bytes);
-        System.out.println(httpHeader);
         return httpHeader;
     }
 }

@@ -6,10 +6,16 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.http.context.Response;
+
 public class ServletOutputStream extends OutputStream{
 
 	private List bufferList = new ArrayList<ByteBuffer>();
-	
+	 
+	protected ServletOutputStream(){
+		
+	}
+
 	public List getBufferList() {
 		return bufferList;
 	}
@@ -21,11 +27,18 @@ public class ServletOutputStream extends OutputStream{
 		write(buffer,0,1);
 	}
 	
-	public void write(byte[] b ,int off , int len ) throws IOException {
+	public void write(byte[] b) throws IOException {
 		 
-		ByteBuffer buffer = ByteBuffer.allocate(len);
-		buffer.put(b, off, len);
-		bufferList.add(buffer);
+		int len = b.length;
+		write(b, 0, len);
+		
+	}
+	
+	public void write(byte[] b ,int off , int len ) throws IOException {
+		
+			ByteBuffer buffer = ByteBuffer.allocate(len);
+			buffer.put(b, off, len);
+			bufferList.add(buffer);
 		
 	}
 

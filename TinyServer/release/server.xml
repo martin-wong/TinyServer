@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <server>
-  <!--   <port>8089</port> -->   <!-- 默认8080 -->
+    <port>8080</port>    <!-- 默认8080 -->
     <serverName>Tiny Server</serverName>
-    <!-- 默认编码为UTF-8 -->
-    <charset>UTF-8</charset>
+   <maxThreads>10</maxThreads>     <!--最大线程数-->
 </server>

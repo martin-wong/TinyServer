@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.http.context.Context;
 import com.http.context.Request;
 
 public class HttpRequest implements Request {
@@ -17,18 +18,20 @@ public class HttpRequest implements Request {
 	
 	//HTTP协议版本  HTTP/1.1
 	private String protocol;
+	
+	private Context context;
 
-	//请求头 Content-Length: 25
+	//保存请求头的集合 Content-Length: 25
 	private Map<String, Object> headers = new HashMap<>();
 	
-	//参数
+	//Request域集合
 	private Map<String, Object> attribute = new HashMap<>();
 	
-	public HttpRequest(String requestHeader, SelectionKey key) {
-		init(requestHeader,key); //HttpRequest被创建后需要初始化一些参数
+	public HttpRequest(HttpContext instance, String requestHeader, SelectionKey key) {
+		init(instance,requestHeader,key); //HttpRequest被创建后需要初始化一些参数
 	}
 
-	private void init(String httpHeader,SelectionKey key) {
+	private void init(HttpContext instance, String httpHeader,SelectionKey key) {
 		//将请求分行
 		String[] headers = httpHeader.split("\r\n");
 		//设置请求方式
@@ -39,6 +42,12 @@ public class HttpRequest implements Request {
 		initProtocol(headers[0]);
 		//设置请求头 
 		initRequestHeaders(headers);
+		//设置Context
+		initContext(instance);
+	}
+
+	private void initContext(HttpContext instance) {
+		context = instance ;
 	}
 
 	/*
@@ -100,7 +109,12 @@ public class HttpRequest implements Request {
 		//POST /login HTTP/1.1
 		protocol = str.substring(str.lastIndexOf(" ") + 1, str.length());
 	}
-
+	
+	@Override
+	public RequestDispatcher getRequestDispatcher(String path){
+		return RequestDispatcher.getRequestDispatcher(path);
+	}
+	
 	@Override
 	public Map<String, Object> getAttribute() {
 		return attribute;
@@ -144,6 +158,11 @@ public class HttpRequest implements Request {
 	@Override
 	public Object getHeader(String key) {
 		return headers.get(key);
+	}
+	
+	@Override
+	public Context getContext() {
+		return context;
 	}
 
 	@Override

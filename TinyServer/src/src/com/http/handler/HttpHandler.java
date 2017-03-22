@@ -32,10 +32,10 @@ public class HttpHandler implements Runnable {
 
 	@Override
 	public void run() {
-		
+		//拿到Context对象 在这里是HttpContext
 		context = HttpContext.getContext();
 		//初始化request和response 以及把他们加入到context域
-		context.setContext(requestHeader, key);
+		context.initRequest(requestHeader, key);
 		//得到uri
 		String uri = context.getRequest().getUri();
 		logger.info("得到了uri " + uri);
@@ -43,7 +43,7 @@ public class HttpHandler implements Runnable {
 		servlet = MapHandler.getContextMapInstance().getHandlerMap().get(uri);
 		//找不到对应的servlet
 		if(servlet == null) {
-			//判断是不是访问静态资源
+			//判断是不是访问静态资源 如果也不是 内部会创建NotFoundServlet并执行
 			servlet = new StaticResourceServlet();
 		} 
 	    servlet.init(context); //初始化servlet并执行

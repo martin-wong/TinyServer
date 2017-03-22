@@ -98,6 +98,10 @@ public class ResponseHandler {
 				sb.append(html);
 				buffer.put(sb.toString().getBytes());
 				bufferList.add(buffer);
+			}else{
+				sb.append("\r\n");
+				buffer.put(sb.toString().getBytes());
+				bufferList.add(buffer);
 			}
 		}
 		

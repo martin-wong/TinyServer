@@ -38,8 +38,8 @@ public class MapHandler {
 			synchronized (MapHandler.class) {
 				if(instance == null) {
 					instance = new MapHandler();
-					//得到web.xml的根路径
-					Element rootElement = XMLUtil.getRootElement("web.xml");
+					//得到web.xml的路径
+					Element rootElement = XMLUtil.getRootElement("webapps"+File.separator+"WEB-INF"+File.separator+"web.xml");
 					//得到handler的集合
 					List<Element> handlers = XMLUtil.getElements(rootElement);
 					for (Element element : handlers) {
@@ -49,7 +49,7 @@ public class MapHandler {
 						Element handlerClazzEle = XMLUtil.getElement(element, "handler-class");
 						//得到handler 的class权限类名
 						String clazzPath = XMLUtil.getElementText(handlerClazzEle);
-					Class<?> clazz = null;
+					    Class<?> clazz = null;
 						try {
 							//通过反射得到handler实例化对象，然后以键值对的形式存储
 							ClassLoaderExpand clod = new ClassLoaderExpand();
@@ -76,7 +76,7 @@ public class MapHandler {
 			
 		return instance;
 	}
-	
+	//加载用户WEB-INF/lib下的jar
 	private static void addLibrary(String path) {
 		
 		File parent = new File(path);

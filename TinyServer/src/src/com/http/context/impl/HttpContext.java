@@ -12,23 +12,35 @@ import com.http.context.Response;
  */  
 public class HttpContext implements Context {
 
+	//本对象是共享且单例的，注意线程安全问题
 	private static HttpContext instance ;
+	/*因为每次请求，都是单独的一条线程来处理，所以在当次请求内get拿到的都是当次的request/response
+      对于不同的请求是不同的线程处理，所以数据不会乱
+     */
 	private static ThreadLocal requestLocal = new ThreadLocal<Request>();
 	private static ThreadLocal responseLocal = new ThreadLocal<Response>();
+	//Context域的集合，这里的对象都是整个运行周期内共享的
 	private static Map attribute = new HashMap<String,Object>();
 	
 	@Override
-	public void setContext(String requestHeader, SelectionKey key) {
-		
+	public void initRequest(String requestHeader, SelectionKey key) {
 		//初始化request
-		HttpRequest request = new HttpRequest(requestHeader,key);
+		HttpRequest request = new HttpRequest(instance,requestHeader,key);
 		//初始化response
 		HttpResponse response = new HttpResponse(key);
 	
 		setRequest(request);
 		setResponse(response);
 	}
-
+	
+	public static Context getContext() {
+		synchronized (HttpContext.class) {
+			if(instance == null)
+				instance =  new HttpContext();
+			return instance; 
+		}
+	}
+	
 	private void setRequest(Request request) {
 		requestLocal.set(request);
 	}
@@ -36,14 +48,6 @@ public class HttpContext implements Context {
 	private void setResponse(Response response) {
 		responseLocal.set(response);
 
-	}
-
-	public static Context getContext() {
-		synchronized (HttpContext.class) {
-			if(instance == null)
-				instance =  new HttpContext();
-			return instance; 
-		}
 	}
 
 	@Override
@@ -57,7 +61,7 @@ public class HttpContext implements Context {
 	}
 
 	@Override
-	public void setAttribute(String attributeName,Object value) {
+	public synchronized void setAttribute(String attributeName,Object value) {
 		attribute.put(attributeName, value);
 	}
 

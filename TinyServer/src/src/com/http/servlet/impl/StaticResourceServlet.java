@@ -19,12 +19,12 @@ public class StaticResourceServlet extends HttpServlet {
 			return ;
 		}   
 		String path = response.getPath()+File.separator+"webapps" + URI;
-		System.out.println(path);
 		File file = new File(path);
 		if(!file.exists() || file.isDirectory()){
 			new NotFoundServlet().init(context);
 			return ;
 		}
+	    request.getAttribute("message");
 		FileInputStream in = null ;
 		OutputStream out = null ;
 		try {

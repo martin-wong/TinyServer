@@ -4,7 +4,7 @@ import java.nio.channels.SelectionKey;
 
 public interface Context {
 
-	public abstract void setContext(String requestHeader, SelectionKey key);
+	public abstract void initRequest(String requestHeader, SelectionKey key);
 	
 	public abstract Request getRequest() ;
 	

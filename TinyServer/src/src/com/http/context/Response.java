@@ -13,6 +13,10 @@ public interface Response {
 	
 	public String getContentType();
 	
+	public boolean getFlag();
+	
+	public boolean getHasDispatchered();
+	
 	public int getStatuCode();
 	
 	public String getStatuCodeStr();

@@ -18,5 +18,11 @@
 		<url-patten>/matrix</url-patten> 
 	</handler> 
 
+        <handler>
+		<handler-class>servlet.DispatcherServlet</handler-class>
+		<url-patten>/dispatcher</url-patten> 
+	</handler> 
+
+
 
 </server>
