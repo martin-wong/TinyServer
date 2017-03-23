@@ -6,12 +6,15 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Date;
 import java.util.List;
+
 import org.apache.log4j.Logger;
+
 import com.http.context.Context;
 import com.http.context.Request;
 import com.http.context.Response;
@@ -25,7 +28,7 @@ public class ResponseHandler {
 	private String protocol;
 	private int statuCode;
 	private String statuCodeStr;
-	private ByteBuffer buffer = ByteBuffer.allocate(1024*1024*20);
+	private ByteBuffer buffer = ByteBuffer.allocate(1024*1024);
 	private String serverName;
 	private String contentType;
 	private String Content_Disposition;
@@ -61,7 +64,7 @@ public class ResponseHandler {
 		bufferList = ((ServletOutputStream)response.getOutputStream()).getBufferList();
 		cookies = response.getCookies();
 		//得到响应正文内容
-		String html = setHtml(context);
+		String html = setHtml();
 		
 		StringBuilder sb = new StringBuilder();
 		//构造状态行
@@ -115,16 +118,23 @@ public class ResponseHandler {
 		try {
 			logger.info("生成响应\r\n" + sb.toString());
 			//注册写事件
-			channel.register(selector, SelectionKey.OP_WRITE,this.bufferList);
-			//恢复对读的感兴趣
-			key.interestOps(key.interestOps() | SelectionKey.OP_READ);
-			
-		} catch (IOException e) {
+			if(channel.isConnected()){
+				channel.register(selector, SelectionKey.OP_WRITE,this.bufferList);
+				//恢复对读的感兴趣
+				key.interestOps(key.interestOps() | SelectionKey.OP_READ);
+			}
+		} catch (ClosedChannelException e) {
 			e.printStackTrace();
+			try {
+				channel.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		}
+			
 	}
 
-	private String setHtml(Context context) {
+	private String setHtml() {
 		StringBuilder html = null;
 		if(htmlFile != null && htmlFile.length() > 0) {
 			

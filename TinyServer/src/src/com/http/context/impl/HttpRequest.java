@@ -66,6 +66,10 @@ public class HttpRequest implements Request {
 			((HttpContext)context).setSession(jsessionid,session );
 		}else{
 			session = ((HttpContext)context).getSession(jsessionid);
+			if(session == null){
+				 session = new HttpSession(jsessionid);
+				((HttpContext)context).setSession(jsessionid,session );
+			}
 		}
 	}
 

@@ -174,6 +174,7 @@ public class Server implements Runnable {
 				  socketChannel.write(temp);
 			}
 		}
+		bufferList.clear();
 	}
 	
 	//将请求信息转为字符串

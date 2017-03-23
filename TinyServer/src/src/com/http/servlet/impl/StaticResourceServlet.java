@@ -21,7 +21,7 @@ public class StaticResourceServlet extends HttpServlet {
 		String path = response.getPath()+File.separator+"webapps" + URI;
 		File file = new File(path);
 		if(!file.exists() || file.isDirectory()){
-			new NotFoundServlet().init(context);
+			request.getRequestDispatcher(" ").forward(request, response);
 			return ;
 		}
 		FileInputStream in = null ;

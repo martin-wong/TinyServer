@@ -39,7 +39,6 @@ public class HttpServlet implements GenericServlet {
 		boolean flag =  context.getResponse().getFlag();
 		if( ( !hasDispatcher ) || ( hasDispatcher && (!flag)) ) {
 			sendResponse(context);
-			System.out.println("进来啦"+"hasDispatcher"+hasDispatcher+"flag"+flag);
 			HttpResponse res = (HttpResponse) context.getResponse();
 			try {
 				Class<?> clazz = Class.forName("com.http.context.impl.HttpResponse");
