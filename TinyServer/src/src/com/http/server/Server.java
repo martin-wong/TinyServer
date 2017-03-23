@@ -152,15 +152,17 @@ public class Server implements Runnable {
 
 	private void writeToClient(SelectionKey key, SocketChannel socketChannel) throws IOException {
 		List bufferList =  (List) key.attachment();
-		//从写模式，切换到读模式，让channel读出去（写事件）
+		//把buffer从写模式，切换到读模式，让channel读出去（写事件）
 		Object[] buffers =  bufferList.toArray();
 		int len = buffers.length;
+		//bufferList的最后一个元素是响应头（或者响应头+HTML文件内容）
 		if(len == 1){
 			ByteBuffer b = (ByteBuffer) buffers[0] ;
 			b.flip();
 			while(b.hasRemaining())
 			  socketChannel.write(b);
 		}else{
+			//如果len>1说明调用过outputStream的write方法写过数据
 			ByteBuffer b = (ByteBuffer) buffers[len-1] ;
 			b.flip();
 			while(b.hasRemaining())
@@ -174,6 +176,7 @@ public class Server implements Runnable {
 		}
 	}
 	
+	//将请求信息转为字符串
     private String receive(SocketChannel socketChannel) throws Exception {
     
         byte[] bytes = null;  

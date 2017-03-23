@@ -44,7 +44,11 @@ public interface Request {
 	/**
 	 * 得到请求头参数
 	 */
-	public Map<String, Object> getHeaders();
+	public Map<String, String> getHeaders();
 	public Set<String> getHeaderNames();
 	public Object getHeader(String key);
+
+	Map<String, String> getCookies();
+
+	Session getSession();
 }

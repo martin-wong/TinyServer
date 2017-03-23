@@ -11,14 +11,12 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Date;
 import java.util.List;
-
 import org.apache.log4j.Logger;
-
 import com.http.context.Context;
 import com.http.context.Request;
 import com.http.context.Response;
+import com.http.context.impl.Cookie;
 import com.http.context.impl.ServletOutputStream;
-import com.http.utils.ClassLoaderExpand;
 
 public class ResponseHandler {
 	
@@ -39,6 +37,7 @@ public class ResponseHandler {
 	private String htmlFile;
 	private List bufferList;
 	private String path;
+	private List<Cookie> cookies;
 	
 	public ResponseHandler() {
 		super();
@@ -60,7 +59,7 @@ public class ResponseHandler {
 		channel = (SocketChannel)key.channel();
 		htmlFile = response.getHtmlFile();//要输出的html文件所在的路径
 		bufferList = ((ServletOutputStream)response.getOutputStream()).getBufferList();
-		
+		cookies = response.getCookies();
 		//得到响应正文内容
 		String html = setHtml(context);
 		
@@ -75,6 +74,13 @@ public class ResponseHandler {
 		sb.append("Date: " + new Date() + "\r\n");
 		
 		
+		
+		int len = cookies.size();
+		for (int i = 0; i < len; i++) {
+			sb.append("Set-Cookie: ");
+			Cookie c = (Cookie)cookies.get(i);
+		    sb.append(c.getName()+"="+c.getValue()+";"+" path="+c.getPath()+"\r\n");
+		}
 		
 		//构造响应内容 使用了outputStream就不能再指定发送一个html文件
 		int size = bufferList.size();

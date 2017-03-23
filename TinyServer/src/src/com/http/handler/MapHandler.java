@@ -9,11 +9,10 @@ import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.log4j.Logger;
 import org.dom4j.Element;
-
 import com.http.servlet.GenericServlet;
+import com.http.servlet.impl.FaviconServlet;
 import com.http.utils.ClassLoaderExpand;
 import com.http.utils.XMLUtil;
 
@@ -70,6 +69,9 @@ public class MapHandler {
 							e.printStackTrace();
 						}
 					}
+					//额外添加一个响应uri==/favicon.ico的servlet
+					instance.getHandlerMap().put("/favicon.ico", new FaviconServlet());
+					
 				}
 			}
 		}

@@ -1,5 +1,6 @@
 package com.http.context.impl;
 
+import java.net.URLEncoder;
 import java.nio.channels.SelectionKey;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Set;
 
 import com.http.context.Context;
 import com.http.context.Request;
+import com.http.context.Session;
 
 public class HttpRequest implements Request {
 	
@@ -22,10 +24,15 @@ public class HttpRequest implements Request {
 	private Context context;
 
 	//保存请求头的集合 Content-Length: 25
-	private Map<String, Object> headers = new HashMap<>();
+	private Map<String, String> headers = new HashMap<>();
+	
+	//保存Cookie
+	private Map<String,String> Cookies ;
 	
 	//Request域集合
 	private Map<String, Object> attribute = new HashMap<>();
+
+	private Session session;
 	
 	public HttpRequest(HttpContext instance, String requestHeader, SelectionKey key) {
 		init(instance,requestHeader,key); //HttpRequest被创建后需要初始化一些参数
@@ -42,8 +49,40 @@ public class HttpRequest implements Request {
 		initProtocol(headers[0]);
 		//设置请求头 
 		initRequestHeaders(headers);
+		//解析Cookie
+		parseCookie();
 		//设置Context
 		initContext(instance);
+		//建立Session
+		initSession();
+	}
+
+	//目前的方法会造成内存泄漏，因为创建的Session加入Context域后没有做销毁，连接数一大会内存泄露
+	private void initSession() {
+		String jsessionid = Cookies.get("JSESSIONID");
+		if(jsessionid == null || "".equals(jsessionid)){
+			jsessionid = URLEncoder.encode(((Double)Math.random()).toString());
+			 session = new HttpSession(jsessionid);
+			((HttpContext)context).setSession(jsessionid,session );
+		}else{
+			session = ((HttpContext)context).getSession(jsessionid);
+		}
+	}
+
+	private void parseCookie() {
+		Cookies = new HashMap<String,String>(); 
+		String cookie = headers.get("Cookie");
+		if(cookie!=null){
+			cookie = cookie.trim();
+			String[] cookies = cookie.split(";");
+			int size = cookies.length;
+			for (int i = 0; i < size; i++) {
+				String[] nameAndValue = cookies[i].split("=");
+				Cookies.put(nameAndValue[0].trim(), nameAndValue[1].trim());
+	 		}
+		}
+		
+		
 	}
 
 	private void initContext(HttpContext instance) {
@@ -131,6 +170,20 @@ public class HttpRequest implements Request {
 	}
 	
 	@Override
+	public Map<String, String> getCookies() {
+		return Cookies;
+	}
+	
+	public String getCookie(String CookieName) {
+		return Cookies.get(CookieName);
+	}
+
+	@Override
+	public Session getSession() {
+		return this.session;
+	}
+	
+	@Override
 	public String getMethod() {
 		return method;
 	}
@@ -146,7 +199,7 @@ public class HttpRequest implements Request {
 	}
 
 	@Override
-	public Map<String, Object> getHeaders() {
+	public Map<String, String> getHeaders() {
 		return headers;
 	}
 

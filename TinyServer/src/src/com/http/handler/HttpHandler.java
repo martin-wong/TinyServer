@@ -1,9 +1,7 @@
 package com.http.handler;
 
 import java.nio.channels.SelectionKey;
-
 import org.apache.log4j.Logger;
-
 import com.http.context.Context;
 import com.http.context.impl.HttpContext;
 import com.http.servlet.GenericServlet;

@@ -2,7 +2,9 @@ package com.http.context;
 
 import java.io.OutputStream;
 import java.nio.channels.SelectionKey;
+import java.util.List;
 
+import com.http.context.impl.Cookie;
 import com.http.context.impl.ServletOutputStream;
 import com.http.utils.XMLUtil;
 
@@ -40,5 +42,9 @@ public interface Response {
 	public void setStatuCodeStr(String statuCodeStr);
 	//设置Content-Disposition响应头  "attachment;filename=1.txt"
 	public String setContent_Disposition(String Content_Disposition);
+
+	public void setCookie(Cookie cookie);
+
+	public List<Cookie> getCookies();
 	
 }

@@ -23,6 +23,10 @@
 		<url-patten>/dispatcher</url-patten> 
 	</handler> 
 
+     <handler>
+		<handler-class>servlet.SessionServlet</handler-class>
+		<url-patten>/session</url-patten> 
+	</handler> 
 
 
 </server>

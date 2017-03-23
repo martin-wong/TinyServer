@@ -4,21 +4,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+
 import com.http.context.Request;
 import com.http.context.Response;
 import com.http.servlet.HttpServlet;
 
-public class StaticResourceServlet extends HttpServlet {
+//响应浏览器请求网站图标的servlet  
+public class FaviconServlet extends HttpServlet {
 
 	@Override
 	public void doGet(Request request, Response response) {
-		//   例如html里的<img src="/picture/1.jpg" alt="陈楚生"> 会传入/picture/1.jpg
-		String URI = request.getUri();
-		if(URI == null){
-			request.getRequestDispatcher(" ").forward(request, response);
-			return ;
-		}   
-		String path = response.getPath()+File.separator+"webapps" + URI;
+	
+		//网站图标应该放在根目录 也就是和webapps同级的目录
+		String path = response.getPath() + File.separator +"favicon.con";
 		File file = new File(path);
 		if(!file.exists() || file.isDirectory()){
 			new NotFoundServlet().init(context);
@@ -54,4 +52,6 @@ public class StaticResourceServlet extends HttpServlet {
 		}
 	}
 	
+	
+
 }

@@ -3,12 +3,17 @@ package com.http.context.impl;
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.channels.SelectionKey;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.http.context.Context;
 import com.http.context.Response;
+import com.http.context.Session;
 
 public class HttpResponse implements Response {
 	
 	private SelectionKey key;
+	private List<Cookie> Cookies = new ArrayList<Cookie>();
 	//内容类型  defalut 为text/html
 	private String contentType = "text/html";
 	private String Content_Disposition ;
@@ -16,14 +21,38 @@ public class HttpResponse implements Response {
 	private int StatuCode = 200;
 	private String statuCodeStr = "OK";
 	private String htmlFile = "";
-	private OutputStream outputStream = new ServletOutputStream();
+	private Context context;
+	private OutputStream outputStream = new ServletOutputStream(this);
 	private boolean hasDispatchered = false; //默认是没有进行转发
 	private boolean flag = false;
 
-	public HttpResponse(SelectionKey key) {
+	public HttpResponse(HttpContext instance, SelectionKey key) {
 		this.key = key;
+		this.context = instance;
+		initCookies();
 	}
 	
+	private void initCookies() {
+		Session session = context.getRequest().getSession();
+		if(session!=null){
+			String jsessionid = session.getJSESSIONID();
+			Cookie c = new Cookie("JSESSIONID", jsessionid);
+			c.setMaxAge(-1);
+			c.setPath("/");
+			Cookies.add(c);
+		}
+	}
+	
+	@Override
+	public void setCookie(Cookie cookie){
+		Cookies.add(cookie);
+	}
+	
+	@Override
+	public List<Cookie> getCookies(){
+		return Cookies;
+	}
+
 	@Override
 	public boolean getHasDispatchered(){
 		return hasDispatchered;
@@ -96,6 +125,7 @@ public class HttpResponse implements Response {
 		return this.Content_Disposition = Content_Disposition;
 	}
 
+	//返回服务器运行的路径
 	public String getPath(){
 		File file = new File("path");
 	    StringBuilder ABSOLUTEPATH = new StringBuilder(file.getAbsolutePath());

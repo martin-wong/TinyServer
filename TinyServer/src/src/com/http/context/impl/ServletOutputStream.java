@@ -7,13 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.http.context.Response;
+import com.http.exception.runtime.DispatcherRuntimeException;
 
 public class ServletOutputStream extends OutputStream{
 
 	private List bufferList = new ArrayList<ByteBuffer>();
+	private Response res;
 	 
-	protected ServletOutputStream(){
-		
+	protected ServletOutputStream(Response res){
+		this.res = res ;
 	}
 
 	public List getBufferList() {
@@ -36,10 +38,14 @@ public class ServletOutputStream extends OutputStream{
 	
 	public void write(byte[] b ,int off , int len ) throws IOException {
 		
+		boolean flag = res.getFlag(); 
+		if(!flag){
 			ByteBuffer buffer = ByteBuffer.allocate(len);
 			buffer.put(b, off, len);
 			bufferList.add(buffer);
-		
+		}else{
+			throw new DispatcherRuntimeException("can not use OutputStream.write(..) after forward()");
+		}
 	}
 
 

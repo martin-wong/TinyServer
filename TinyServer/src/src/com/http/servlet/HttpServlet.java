@@ -33,6 +33,7 @@ public class HttpServlet implements GenericServlet {
 		/*
 		 * 只要调用过getRequestDispatcher ， hasDispatcher就是true
 		 * 所以配合辅助标记flag 转发链的最后一个servlet会最先抵达这里它会执行sendResponse
+		 * 而转发链的其他servlet都不能执行输出操作，也就是不能调用sendResponse
 		 */
 		boolean hasDispatcher = context.getResponse().getHasDispatchered();
 		boolean flag =  context.getResponse().getFlag();

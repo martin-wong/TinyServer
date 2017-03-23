@@ -21,7 +21,7 @@ public class DispatcherServlet extends HttpServlet{
                 try{
 		        response.getOutputStream().write(a,0,a.length);
 			request.getRequestDispatcher("/matrix").forward(request,response);
-		        
+		        response.getOutputStream().write(b,0,b.length);
                 }catch(IOException e){
 
                 }
