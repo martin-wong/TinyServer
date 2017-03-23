@@ -23,12 +23,14 @@ import com.http.context.impl.ServletOutputStream;
 
 public class ResponseHandler {
 	
+	//这个字段表示用于存储响应头的字节数 暂时1024应该够了
+	private static final int SIZE = 1024;
 	private Request request;
 	private Response response;
 	private String protocol;
 	private int statuCode;
 	private String statuCodeStr;
-	private ByteBuffer buffer = ByteBuffer.allocate(1024*1024);
+	private ByteBuffer buffer ;
 	private String serverName;
 	private String contentType;
 	private String Content_Disposition;
@@ -95,6 +97,7 @@ public class ResponseHandler {
 			}
 			sb.append("Content-Length: " + length + "\r\n");
 			//把上面的内容写到缓存区buffer
+			buffer = ByteBuffer.allocate(SIZE);
 			buffer.put(sb.toString().getBytes());
 			buffer.put("\r\n".getBytes()); //响应头和响应体之间有一个空行
 			bufferList.add(buffer);
@@ -105,10 +108,12 @@ public class ResponseHandler {
 				}
 				sb.append("\r\n");
 				sb.append(html);
+				buffer = ByteBuffer.allocate(html.getBytes().length+SIZE);
 				buffer.put(sb.toString().getBytes());
 				bufferList.add(buffer);
 			}else{
 				sb.append("\r\n");
+				buffer = ByteBuffer.allocate(SIZE);
 				buffer.put(sb.toString().getBytes());
 				bufferList.add(buffer);
 			}
