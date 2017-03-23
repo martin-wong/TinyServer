@@ -5,7 +5,7 @@ release文件夹内的内容包含了服务器主程序和几个小小的使用�
 ```
 java -jar tinyserver.jar
 ```
-即可以启动服务器，默认它监听在8080端口，可以在server.xml中更改。启动浏览器，在地址栏输入：
+即可以启动服务器，默认它监听在8080端口，可以在server.xml中更改。启动浏览器，在地址栏输入下面的地址：
 ```
 http://localhost:8080/webapps/matrix           //演示如何使用第三方jar包编写servlet
 http://localhost:8080/webapps/download         //演示实现文件下载，您需要修改代码以明确一个存储在您电脑上的文件的位置
@@ -13,6 +13,7 @@ http://localhost:8080/webapps/welcome          //演示静态资源读取
 http://localhost:8080/webapps/123456           //演示404错误
 http://localhost:8080/webapps/dispatcher       //演示使用getRequestDispatcher.forward方法进行servlet转发
 http://localhost:8080/webapps/session         //演示Session的使用
+
 ```
 就能看到不同的效果
 ## 编写自己的Servlet并让服务器执行
