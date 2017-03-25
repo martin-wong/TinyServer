@@ -12,7 +12,7 @@ public class SessionServlet extends HttpServlet{
 
 	@Override
 	public void doGet(Request request, Response response)   {
-		response.setStatuCode(200);
+		response.setStatus(200);
 		response.setStatuCodeStr("OK");
 
                 String message = (String)request.getSession().getAttribute("msg");

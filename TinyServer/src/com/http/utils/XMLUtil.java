@@ -13,14 +13,14 @@ public class XMLUtil {
 	
 	private static Logger logger = Logger.getLogger(XMLUtil.class);
 	private static SAXReader reader = new SAXReader();
-	
 
 	public static Element getRootElement(String xmlPath) {
-		Document document = null;;
+		Document document = null;
 		try {
-			document = reader.read(new File(xmlPath));
+			File file = new File(xmlPath) ;
+			document = reader.read(file);
 		} catch (DocumentException e) {
-			logger.error("找不到指定的xml文件的路径" + xmlPath + "！");
+			logger.error("找不到指定的xml文件的路径:" + xmlPath + "！");
 			return null;
 		}
 		return document.getRootElement();
@@ -40,7 +40,7 @@ public class XMLUtil {
 	public static Element getElement(Element element, String name) {
 		Element childElement = element.element(name);
 		if(childElement == null) {
-			logger.error(element.getName() + "节点下没有子节点" + name);
+			logger.info(element.getName() + "节点下没有子节点" + name);
 			return null;
 		}
 		return childElement;

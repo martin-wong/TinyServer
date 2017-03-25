@@ -3,14 +3,12 @@ import com.http.context.Request;
 import com.http.context.Response;
 import com.http.servlet.HttpServlet;
 
-public class WelcomeServlet extends HttpServlet {
+public class RedirectServlet extends HttpServlet {
 	
 	@Override
 	public void doGet(Request request , Response response) {
- 
-		response.setStatus(200);
-		response.setStatuCodeStr("OK");
-		response.setHtmlFile("html/welcome.html"); 
+                response.setStatus(200);
+		response.sendRedirect("http://www.baidu.com");
 	}
 	
 }

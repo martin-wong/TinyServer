@@ -49,7 +49,6 @@ public class ClassLoaderExpand extends ClassLoader {
 	    		break;
 	    	}
 		}
-	    System.out.println(path);
 	   return path; 
 	}
 	

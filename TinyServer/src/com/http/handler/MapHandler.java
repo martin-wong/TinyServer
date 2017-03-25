@@ -26,7 +26,7 @@ public class MapHandler {
 	//访问路径对应控制类  map<uri,class>
 	private static Map<String, GenericServlet> handlerMap = new HashMap<>();
 	//web.xml配置映射/download 但地址栏需要输入/webapps/downlooad
-	private static final String WEBAPPS = File.separator+"webapps";
+	private static final String WEBAPPS = "/webapps";
 	private static MapHandler instance = null; 
 	
 	//将构造器私有化

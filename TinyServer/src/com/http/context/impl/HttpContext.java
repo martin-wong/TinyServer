@@ -29,7 +29,7 @@ public class HttpContext extends Context {
 	private HttpContext(){}
 	
 	@Override
-	public void initRequest(String requestHeader, SelectionKey key) {
+	public void initRequestAndResponse(String requestHeader, SelectionKey key) {
 		//初始化request
 		HttpRequest request = new HttpRequest(instance,requestHeader,key);
 		setRequest(request);

@@ -35,14 +35,16 @@ public class HttpHandler implements Runnable {
 		//拿到Context对象 在这里是HttpContext
 		context = HttpContext.getContext();
 		//初始化request和response 以及把他们加入到context域
-		context.initRequest(requestHeader, key);
+		context.initRequestAndResponse(requestHeader, key);
+		logger.info("初始化request和response");
 		//得到uri
 		String uri = context.getRequest().getUri();
-		logger.info("得到了uri " + uri);
+		logger.info("解析后的uri是 : " + uri);
 		//得到MapHandler集合(uri-->handler) 这里的handler就是一个servlet
 		servlet = MapHandler.getContextMapInstance().getHandlerMap().get(uri);
 		//找不到对应的servlet
 		if(servlet == null) {
+			logger.info("找不到uri对应的servlet..正在查找是否是请求静态资源");
 			//判断是不是访问静态资源 如果也不是 内部会创建NotFoundServlet并执行
 			servlet = new StaticResourceServlet();
 		} 

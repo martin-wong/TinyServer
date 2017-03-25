@@ -1,6 +1,7 @@
 package com.http.server;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -51,7 +52,9 @@ public class Server implements Runnable {
 			
 			//ServerSocketChannel通道监听server.xml中设置的端口 默认端口8080
 			serverSocket.setReuseAddress(true);  
-		    Element ele = XMLUtil.getRootElement("server.xml").element("port");
+			String ServerXmlPath = "conf"+File.separator+"server.xml" ;
+			logger.info("指定的xml文件的路径是:" + ServerXmlPath );
+		    Element ele = XMLUtil.getRootElement(ServerXmlPath).element("port");
 		    if(ele != null)
 			   PORT = ele.getText(); 
 		    serverSocket.bind(new InetSocketAddress(Integer.parseInt(PORT)));
@@ -60,11 +63,10 @@ public class Server implements Runnable {
 			
 			//创建线程池
 			String maxThreads = null;
-			Element e1 = XMLUtil.getRootElement("server.xml").element("maxThreads");
+			Element e1 = XMLUtil.getRootElement(ServerXmlPath).element("maxThreads");
 			if(e1 != null)
 				maxThreads = e1.getText(); 
 			threadPool = Executors.newFixedThreadPool(Integer.parseInt(maxThreads));
-			System.out.println("最大线程数"+maxThreads);
 			//将通道设置为非阻塞模式
 			serverSocketChannel.configureBlocking(false);
 			//serverSocketChannel注册ACCEPT事件
@@ -110,14 +112,15 @@ public class Server implements Runnable {
 						}
 						//启动线程处理该请求,if条件判断一下，防止心跳包
 						if(requestHeader.length() > 0) {
-							logger.info("该请求的头格式为\r\n" + requestHeader);
-							logger.info("启动了子线程..");
+							logger.info("本次HTTP请求头信息\r\n" + requestHeader);
+							logger.info("线程池准备接受主线程分配任务..");
 							threadPool.execute(new HttpHandler(requestHeader, key));
 						}
 						
 					} 
 					if (key.isWritable()) {
 						//已经准备好可以向客户端写数据
+						logger.info("写通道已经就绪，开始传送数据到客户端");
 						key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE));
 						SocketChannel socketChannel = (SocketChannel) key.channel();
 						
@@ -126,6 +129,7 @@ public class Server implements Runnable {
 							public void run() {
 								try {
 									writeToClient(key, socketChannel);
+									logger.info("数据传送成功");
 								} catch (IOException e) {
 									e.printStackTrace();
 								}finally{

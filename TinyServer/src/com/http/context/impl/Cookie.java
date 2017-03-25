@@ -4,11 +4,11 @@ public class Cookie {
 
 	private String name;
 	private String value;
-	private int maxAge;
-	private String path;
+	private int maxAge = 0;
+	private String path = "/";
 	
 	
-	protected Cookie(String name, String value) {
+	public Cookie(String name, String value) {
 		super();
 		this.name = name;
 		this.value = value;

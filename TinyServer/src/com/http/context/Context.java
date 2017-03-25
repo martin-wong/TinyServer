@@ -4,8 +4,6 @@ import java.nio.channels.SelectionKey;
 
 public abstract class Context {
 
-	public abstract void initRequest(String requestHeader, SelectionKey key);
-	
 	public abstract Request getRequest() ;
 	
 	public abstract Response getResponse() ;
@@ -17,6 +15,8 @@ public abstract class Context {
 	protected abstract Session getSession(String sessionId) ;
 
 	protected abstract void setSession(String sessionId, Session session);
+
+	public abstract void initRequestAndResponse(String requestHeader, SelectionKey key) ;
 
 
 }

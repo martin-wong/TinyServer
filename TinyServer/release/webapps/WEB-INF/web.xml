@@ -28,5 +28,15 @@
 		<url-patten>/session</url-patten> 
 	</handler> 
 
+         <handler>
+		<handler-class>CookieServlet</handler-class>
+		<url-patten>/cookie</url-patten> 
+	</handler> 
+ 
+        <handler>
+		<handler-class>RedirectServlet</handler-class>
+		<url-patten>/servlet/redirect</url-patten> 
+	</handler> 
+
 
 </server>

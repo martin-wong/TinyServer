@@ -2,20 +2,24 @@ package com.http.servlet;
 
 import java.lang.reflect.Field;
 
+import org.apache.log4j.Logger;
+
 import com.http.context.Context;
 import com.http.context.Request;
 import com.http.context.Response;
 import com.http.context.impl.HttpResponse;
 import com.http.context.impl.RequestDispatcher;
+import com.http.handler.HttpHandler;
 import com.http.handler.ResponseHandler;
 
  
 public class HttpServlet implements GenericServlet {
 	
 	protected Context context;
-	
+	private Logger logger = Logger.getLogger(HttpServlet.class);
 	@Override
 	public void init(Context context) {
+		
 		this.context = context;
 		this.service(context);
 	}
@@ -26,8 +30,10 @@ public class HttpServlet implements GenericServlet {
 		//通过请求方式选择是doGET方法还是doPOST方法
 		String method = context.getRequest().getMethod();
 		if(method.equals(Request.GET)) {
+			logger.info("开始执行doGet方法");
 			this.doGet(context.getRequest(),context.getResponse());
 		} else if (method.equals(Request.POST)) {
+			logger.info("开始执行doPost方法");
 			this.doPost(context.getRequest(),context.getResponse());
 		}
 		/*

@@ -12,7 +12,7 @@ public class DownloadServlet extends HttpServlet{
 
 	@Override
 	public void doGet(Request request, Response response)  {
-		response.setStatuCode(200);
+		response.setStatus(200);
 		response.setStatuCodeStr("OK");
 		response.setContentType("audio/mpeg");
 		response.setContent_Disposition("attachment;filename=song.mp3");

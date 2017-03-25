@@ -18,13 +18,14 @@ public class HttpResponse implements Response {
 	private String contentType = "text/html";
 	private String Content_Disposition ;
 	//响应码  defalut 为200
-	private int StatuCode = 200;
+	private int Status = 200;
 	private String statuCodeStr = "OK";
 	private String htmlFile = "";
 	private Context context;
 	private OutputStream outputStream = new ServletOutputStream(this);
 	private boolean hasDispatchered = false; //默认是没有进行转发
 	private boolean flag = false;
+	private String location;
 
 	public HttpResponse(HttpContext instance, SelectionKey key) {
 		this.key = key;
@@ -80,8 +81,13 @@ public class HttpResponse implements Response {
 	 
 
 	@Override
-	public int getStatuCode() {
-		return StatuCode;
+	public int getStatus() {
+		return Status;
+	}
+	
+	@Override
+	public void setStatus(int Status) {
+		this.Status =  Status;
 	}
 
 	@Override
@@ -109,10 +115,6 @@ public class HttpResponse implements Response {
 		this.contentType = contentType;
 	}
 
-	@Override
-	public void setStatuCode(int statuCode) {
-		StatuCode = statuCode;
-	}
 
 	@Override
 	public void setStatuCodeStr(String statuCodeStr) {
@@ -141,8 +143,23 @@ public class HttpResponse implements Response {
 	    		break;
 	    	}
 		}
-	    System.out.println(path);
 	   return path; 
+	}
+	
+	@Override
+	public void sendRedirect(String uri) {
+		 this.Status = 302;
+         this.location = uri;		
+	}
+	
+	@Override
+	public void setLocation(String uri) {
+         this.location = uri;		
+	}
+	
+	@Override
+	public String getLocation() {
+         return this.location;		
 	}
 	
 	@Override
@@ -153,7 +170,7 @@ public class HttpResponse implements Response {
 				* result
 				+ ((Content_Disposition == null) ? 0 : Content_Disposition
 						.hashCode());
-		result = prime * result + StatuCode;
+		result = prime * result + Status;
 		result = prime * result
 				+ ((contentType == null) ? 0 : contentType.hashCode());
 		result = prime * result
@@ -181,7 +198,7 @@ public class HttpResponse implements Response {
 				return false;
 		} else if (!Content_Disposition.equals(other.Content_Disposition))
 			return false;
-		if (StatuCode != other.StatuCode)
+		if (Status != other.Status)
 			return false;
 		if (contentType == null) {
 			if (other.contentType != null)
@@ -210,5 +227,6 @@ public class HttpResponse implements Response {
 			return false;
 		return true;
 	}
+
 
 }
