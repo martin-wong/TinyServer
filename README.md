@@ -1,5 +1,5 @@
 # TinyServer
-这是一个使用JavaNIO以及多线程技术实现的类似tomcat的服务器，目前仅支持linux系统，尚未针对windows进行测试。
+这是一个使用JavaNIO以及多线程技术实现的类似tomcat的服务器，支持linux以及windows。
 ## 启动服务器
 release文件夹内的内容包含了服务器主程序和几个小小的使用例子，您可以下载后放在您计算机的任意位置，然后启动terminal，进入release文件夹后，输入：
 ```
@@ -13,6 +13,7 @@ http://localhost:8080/webapps/welcome          //演示静态资源读取
 http://localhost:8080/webapps/123456           //演示404错误
 http://localhost:8080/webapps/dispatcher       //演示使用getRequestDispatcher.forward方法进行servlet转发
 http://localhost:8080/webapps/session         //演示Session的使用
+http://localhost:8080/webapps/cookie         //演示Cookie的使用
 
 ```
 就能看到不同的效果
